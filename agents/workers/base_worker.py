@@ -120,14 +120,22 @@ class BaseWorker(ABC):
         while exec_action_name is None:
             if time.time() - start_time < interact_timeout:
                 try:
+                    #print("before generate_command")
                     response = self.generate_command(input_prompt +
                                                      prompt_addition)
+                    #print("after generate_command")
+                    if response is None:
+                        raise Exception("LLM response is None")
 
                     exec_action_name, prompt_addition = self.process_command(
                         response, input_prompt, avail_action_list)
+                    #print("after process_command")
                     self.dialogue += [response['choices'][0]['message']]
 
                 except Exception as e:
+                    #Sprint("EXCEPTION:", e)
+                    import traceback
+                    traceback.print_exc()
                     fc_logger.error(f'Error when choosing action: {str(e)}')
                     fc_logger.error(f'input_prompt: {input_prompt}')
                     fc_logger.error(f'dialogue: {str(self.dialogue)}')
@@ -191,6 +199,11 @@ class BaseWorker(ABC):
             self.dialogue.pop(-1)
 
     def restrict_dialogue(self):
+        # Qwenの場合，会話履歴を最新２０件だけのこす（agents/civ_autogpt/utils/num_tokens_from_messages.pyがOpenAI用の実装のため）
+        if "Qwen" in self.model:
+            if len(self.dialogue) > 20:
+                self.dialogue = self.dialogue[-20:]
+            return
         limit = TOKEN_LIMIT_TABLE[self.model]
         """
         The limit on token length for gpt-3.5-turbo-0301 is 4096.

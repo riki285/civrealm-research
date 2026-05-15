@@ -20,7 +20,7 @@ import threading
 from civrealm.freeciv.utils.language_agent_utility import make_action_list_readable, get_action_from_readable_name
 
 from .language_agent import LanguageAgent
-from .workers import AzureGPTWorker
+from .workers import AzureGPTWorker, QwenWorker
 from .utils import print_current, print_action
 
 # Wrong Interpretation of action names. Goto Yexin to fix it.
@@ -37,8 +37,11 @@ class BaseLangAgent(LanguageAgent):
         self.workers = {}
 
     def add_entity(self, entity_type, entity_id):
-        self.workers[(entity_type,
+        """ self.workers[(entity_type,
                       entity_id)] = AzureGPTWorker(ctrl_type=entity_type,
+                                                   actor_id=entity_id) """
+        self.workers[(entity_type,
+                      entity_id)] = QwenWorker(ctrl_type=entity_type,
                                                    actor_id=entity_id)
 
     def remove_entity(self, entity_type, entity_id):
@@ -66,6 +69,7 @@ class BaseLangAgent(LanguageAgent):
 
     def make_single_decision(self, ctrl_type, actor_id, actor_dict):
         worker = self.workers[(ctrl_type, actor_id)]
+        print(type(worker))
         actor_name = actor_dict['name']
 
         available_actions = actor_dict['available_actions']
@@ -81,6 +85,11 @@ class BaseLangAgent(LanguageAgent):
                                                      actor_dict,
                                                      available_actions)
         print_current(f'Current {ctrl_type}: {actor_name}')
+        print("===== input_prompt =====")
+        print(obs_input_prompt)
+
+        print("===== AVAILABLE ACTIONS =====")
+        print(available_actions)
         exec_action_name = worker.choose_action(obs_input_prompt,
                                                 available_actions)
         print_action(f'Action chosen for {actor_name}:', exec_action_name)

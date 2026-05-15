@@ -36,9 +36,10 @@ def main():
     Main entry of the program.
     Starts a single-player Freeciv game against rule-based AI.
     """
-    env = gymnasium.make('civrealm/FreecivLLM-v0')
-    agent = MastabaAgent(max_deconflict_depth=3)
-    # agent = BaseLangAgent()
+    env = gymnasium.make('civrealm/FreecivLLM-v0') #CivRealmのGymnasium環境を作成
+    #agent = MastabaAgent(max_deconflict_depth=3)
+    #agent = BaseLangAgent()
+    agent = BaselineLanguageAgent()
 
     observations, info = env.reset()
 
@@ -47,8 +48,7 @@ def main():
     while not done:
         try:
             action = agent.act(observations, info)
-            observations, reward, terminated, truncated, info = env.step(
-                action)
+            observations, reward, terminated, truncated, info = env.step(action) #Freecivを１ターン進行
             done = terminated or truncated
 
             step += 1

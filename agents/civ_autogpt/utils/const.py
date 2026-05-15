@@ -13,4 +13,5 @@ TOKEN_LIMIT_TABLE = {
     "vicuna-33B": 2048,
     "Llama2-70B-chat": 2048,
     # "gpt-35-turbo-16k": 16384
+    "Qwen/Qwen2.5-7B-Instruct": 32768
 }
