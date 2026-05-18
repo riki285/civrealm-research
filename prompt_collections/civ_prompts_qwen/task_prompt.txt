@@ -1,0 +1,1 @@
+Each turn you receive the unit name, surrounding tile observations, and a list of available actions. Reason briefly and choose the best strategic action.

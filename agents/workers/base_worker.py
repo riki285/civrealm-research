@@ -199,10 +199,10 @@ class BaseWorker(ABC):
             self.dialogue.pop(-1)
 
     def restrict_dialogue(self):
-        # Qwenの場合，会話履歴を最新２０件だけのこす（agents/civ_autogpt/utils/num_tokens_from_messages.pyがOpenAI用の実装のため）
+        # Qwenの場合，先頭2件（instruction/task prompt）を保持しつつ最新4件だけ残す
         if "Qwen" in self.model:
-            if len(self.dialogue) > 20:
-                self.dialogue = self.dialogue[-20:]
+            if len(self.dialogue) > 3:
+                self.dialogue = self.dialogue[:2] + self.dialogue[-1:]
             return
         limit = TOKEN_LIMIT_TABLE[self.model]
         """
