@@ -1,3 +1,10 @@
+## Based on / 参考元
+
+This project is based on [civrealm-llm-baseline](https://github.com/bigai-ai/civrealm-llm-baseline) by BIGAI-AI (BaseLang / Mastaba implementation).
+
+Please also refer to the original paper:
+> Qi et al., "CivRealm: A Learning and Reasoning Odyssey in Civilization for Decision-Making Agents", ICLR 2024.
+
 # BaseLang & Mastaba: Civrealm-LLM-Agents
 BaseLang and Mastaba are two LLM-based agents for the reinforcement learning environment [CivRealm](https://www.github.com/bigai-ai/civrealm). BaseLand and Mastaba share a similar interface to CivRealm over standard Gymnasium, as provided in CivRealm. BaseLang implements a paraallel controller on each unit individually and Mastaba uses an "advisor" to lead them all. Both agent models are presented in the paper of CivRealm.
 

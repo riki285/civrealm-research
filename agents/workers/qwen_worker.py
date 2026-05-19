@@ -13,7 +13,7 @@ class QwenWorker(BaseWorker):
     """
 
     def __init__(self,
-                 model: str = "Qwen/Qwen2.5-7B-Instruct",
+                 model: str = "Lorbus/Qwen3.6-27B-int4-AutoRound",
                  api_url: str = "http://localhost:8001/v1/chat/completions",
                  prompt_prefix: str = "civ_prompts_qwen",
                  temperature: float = 0.3,
@@ -74,6 +74,7 @@ class QwenWorker(BaseWorker):
                     "messages":    self.dialogue,
                     "temperature": self.temperature,
                     "max_tokens":  self.max_tokens,
+                    "chat_template_kwargs": {"enable_thinking": False},#thinking modeオフ
                 },
                 timeout=120
             )
@@ -94,7 +95,7 @@ class QwenWorker(BaseWorker):
     # コマンド生成
     # ------------------------------------------------------------------
     def generate_command(self, prompt: str):
-        full_prompt = prompt + self.prompt_handler.insist_json()
+        full_prompt = prompt + "\n" + self.prompt_handler.insist_json()
 
         print("\n===== PROMPT TO QWEN =====")
         print(full_prompt)

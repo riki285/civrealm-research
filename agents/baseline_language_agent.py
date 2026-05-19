@@ -58,7 +58,7 @@ MAX_RETRIES = 2  # やり直し回数の上限
 
 class BaselineLanguageAgent(BaseAgent):
     def __init__(self,
-                 LLM_model='Qwen/Qwen2.5-7B-Instruct',
+                 LLM_model='Lorbus/Qwen3.6-27B-int4-AutoRound',
                  load_dialogue=False):
         super().__init__()
 
