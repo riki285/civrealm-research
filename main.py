@@ -29,7 +29,7 @@ warnings.filterwarnings('ignore',
                         message='.*The obs returned by the .* method.*')
 
 
-MAX_TURNS = 300  # ターン数の上限。None にすると無制限。
+MAX_TURNS = 10  # ターン数の上限。None にすると無制限。
 
 
 def main():

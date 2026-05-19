@@ -7,52 +7,6 @@ from civrealm.configs import fc_args
 from agents.workers.qwen_worker import QwenWorker
 
 
-UNIT_RULES = {
-    'Settlers': (
-        "- Build new cities using 'build city'.\n"
-        "- Best spots: Grassland or Plains tile near a River, and near resources"
-        " (Wheat, Wine, Fish, Silk, Coal, Whale, Pheasant, Game).\n"
-        "- Cities must have minimum distance — do NOT build adjacent to an existing city.\n"
-        "- If standing on an existing city tile, move away before building.\n"
-        "- Do NOT choose 'join city' when you intend to found a new city.\n"
-        "- Use 'upper_map' to find directions with unexplored land."
-    ),
-    'Workers': (
-        "- Improve tiles to boost city production.\n"
-        "- Priority 1: Build a road if the current tile has no road yet.\n"
-        "- Priority 2: Irrigate if the tile has Wheat, Spice, or other farmable resources.\n"
-        "- Priority 3: Mine on Hills or Mountains.\n"
-        "- Move toward unimproved tiles near cities when current tile is already developed."
-    ),
-    'Explorer': (
-        "- Reveal the map as quickly as possible.\n"
-        "- Always move toward the direction with the most 'tiles unexplored' in 'upper_map'.\n"
-        "- IMPORTANT: Ocean tiles are impassable for land units. If 'tile_[direction]_1' shows 'Ocean', do NOT choose 'move [direction]' — pick a different direction.\n"
-        "- Avoid 'fortify' or 'keep activity' — keep moving every turn."
-    ),
-    'default': (
-        "- Expand and develop your civilization.\n"
-        "- Settlers build cities near Rivers and resources.\n"
-        "- Workers build roads and irrigate farmland near cities.\n"
-        "- Explorers reveal the map by moving toward unexplored tiles."
-    ),
-}
-
-CITY_RULES = (
-    "- Build Settlers to found new cities and expand your empire.\n"
-    "- Build Workers to improve surrounding tiles (roads, irrigation, mines).\n"
-    "- Build Granary or other improvements to grow the city faster.\n"
-    "- Build military units when threatened by enemies."
-)
-
-
-def get_unit_rules(unit_name: str) -> str:
-    for key in UNIT_RULES:
-        if key != 'default' and key in unit_name:
-            return UNIT_RULES[key]
-    return UNIT_RULES['default']
-
-
 MAX_RETRIES = 2  # やり直し回数の上限
 
 
@@ -116,20 +70,20 @@ class BaselineLanguageAgent(BaseAgent):
                 if not valid_actor_id:
                     continue
 
-                current_unit_name = valid_actor_name
-                current_unit_obs  = info['llm_info'][ctrl_type][valid_actor_id]['observations']
+                actor_obs  = info['llm_info'][ctrl_type][valid_actor_id]['observations']
+                zoom_in_obs  = actor_obs['minimap']
+                zoom_out_obs = actor_obs['upper_map']
 
-                avail_str = "\n".join(f"- {a}" for a in valid_action_list)
-                obs_input_prompt = (
-                    f"## Rules for {current_unit_name}:\n"
-                    f"{get_unit_rules(current_unit_name)}\n\n"
-                    f"Unit: {current_unit_name}\n"
-                    f"Observation: {current_unit_obs}\n\n"
-                    f"AVAILABLE ACTIONS (you MUST choose exactly one of these):\n"
-                    f"{avail_str}"
+                obs_input_prompt = self.qwen_worker.prompt_handler.unit_obs_action(
+                    ctrl_type=ctrl_type,
+                    actor_name=valid_actor_name,
+                    zoom_out_obs=zoom_out_obs,
+                    zoom_in_obs=zoom_in_obs,
+                    available_actions=valid_action_list,
+                    general_advise=''
                 )
 
-                print('current unit:', current_unit_name, '; unit id:', valid_actor_id)
+                print('current unit:', valid_actor_name, '; unit id:', valid_actor_id)
 
                 exec_action_name = self.interact_with_llm(
                     obs_input_prompt, valid_action_list
@@ -146,20 +100,22 @@ class BaselineLanguageAgent(BaseAgent):
                 if not valid_actor_id:
                     continue
 
-                current_city_name = valid_actor_name
-                current_city_obs  = info['llm_info'][ctrl_type][valid_actor_id]['observations']
+                actor_obs    = info['llm_info'][ctrl_type][valid_actor_id]['observations']
+                zoom_in_obs  = actor_obs['minimap']
+                zoom_out_obs = actor_obs['upper_map']
+                producing    = actor_obs.get('producing', 'NOTHING')
 
-                avail_str = "\n".join(f"- {a}" for a in valid_action_list)
-                obs_input_prompt = (
-                    f"## City management rules:\n"
-                    f"{CITY_RULES}\n\n"
-                    f"City: {current_city_name}\n"
-                    f"Observation: {current_city_obs}\n\n"
-                    f"AVAILABLE ACTIONS (you MUST choose exactly one of these):\n"
-                    f"{avail_str}"
+                obs_input_prompt = self.qwen_worker.prompt_handler.city_obs_action(
+                    ctrl_type=ctrl_type,
+                    actor_name=valid_actor_name,
+                    zoom_out_obs=zoom_out_obs,
+                    zoom_in_obs=zoom_in_obs,
+                    producing=producing,
+                    available_actions=valid_action_list,
+                    general_advise=''
                 )
 
-                print('current city:', current_city_name, '; city id:', valid_actor_id)
+                print('current city:', valid_actor_name, '; city id:', valid_actor_id)
 
                 exec_action_name = self.interact_with_llm(
                     obs_input_prompt, valid_action_list

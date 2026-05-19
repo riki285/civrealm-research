@@ -56,8 +56,7 @@ class QwenWorker(BaseWorker):
 
         if exec_action.lower() not in lower_avail:
             fc_logger.error(f'Invalid action "{exec_action}", retrying...')
-            avail_str = ", ".join(f'"{a}"' for a in current_avail_actions)
-            return None, f'\nERROR: "{exec_action}" is NOT a valid action. You MUST choose EXACTLY one of: [{avail_str}]'
+            return None, self.prompt_handler.insist_avail_action()
 
         self.taken_actions_list.append(exec_action)
         return exec_action, ''
