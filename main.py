@@ -17,7 +17,7 @@ import pickle
 import warnings
 import gymnasium
 import civrealm
-from agents import BaselineLanguageAgent, AutoGPTAgent, BaseLangAgent, MastabaAgent
+from agents import BaselineLanguageAgent, AutoGPTAgent, BaseLangAgent, MastabaAgent, QwenMastabaAgent
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.configs import fc_args
 from civrealm.envs.freeciv_wrapper.llm_wrapper import LLMWrapper
@@ -29,7 +29,7 @@ warnings.filterwarnings('ignore',
                         message='.*The obs returned by the .* method.*')
 
 
-MAX_TURNS = 10  # ターン数の上限。None にすると無制限。
+MAX_TURNS = None  # ターン数の上限。None にすると無制限。
 
 
 def main():
@@ -42,7 +42,8 @@ def main():
     env = gymnasium.make('civrealm/FreecivLLM-v0') #CivRealmのGymnasium環境を作成
     #agent = MastabaAgent(max_deconflict_depth=3)
     #agent = BaseLangAgent()
-    agent = BaselineLanguageAgent()
+    #agent = BaselineLanguageAgent()
+    agent = QwenMastabaAgent()
 
     observations, info = env.reset()
 
@@ -65,7 +66,10 @@ def main():
         except Exception as e:
             fc_logger.error(repr(e))
             raise e
+    eval_data = env.evaluate_game()
     env.plot_game_scores()
+
+    model_name = getattr(getattr(agent, 'qwen_worker', None), 'model', None)
 
     retry_stats = getattr(agent, 'retry_stats', None)
     if retry_stats is not None:
@@ -74,11 +78,14 @@ def main():
         for k, v in retry_stats.items():
             label = f'{k}回やり直し' if k != 'random' else 'ランダム(上限超え)'
             print(f'  {label}: {v}回 ({v/total*100:.1f}%)' if total > 0 else f'  {label}: {v}回')
+    if model_name:
+        print(f'  model: {model_name}')
 
     save_experiment_results(
         env,
         agent_name=type(agent).__name__,
-        extra={'retry_stats': retry_stats},
+        extra={'model': model_name, 'retry_stats': retry_stats},
+        eval_data=eval_data,
     )
     env.close()
 

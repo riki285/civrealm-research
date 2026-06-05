@@ -55,12 +55,20 @@ def _build_player_record(pid, player_info, game_results, evaluations):
     }
 
 
-def save_experiment_results(env, agent_name: str = 'BaselineLanguageAgent', extra: dict = None):
-    """ゲーム終了後に全プレイヤーのスコアと内訳を results/ に JSON で保存する。"""
+def save_experiment_results(env, agent_name: str = 'BaselineLanguageAgent', extra: dict = None,
+                            eval_data=None):
+    """ゲーム終了後に全プレイヤーのスコアと内訳を results/ に JSON で保存する。
+
+    eval_data: env.evaluate_game() の戻り値 (players, tags, turns, evaluations)。
+               渡さない場合は内部で evaluate_game() を呼ぶ（game_scores/ が追加生成される）。
+    """
     os.makedirs(RESULTS_DIR, exist_ok=True)
 
     game_results = env.get_game_results()
-    players, _tags, _turns, evaluations = env.evaluate_game()
+    if eval_data is not None:
+        players, _tags, _turns, evaluations = eval_data
+    else:
+        players, _tags, _turns, evaluations = env.evaluate_game()
     my_player_id = env.unwrapped.civ_controller.player_ctrl.my_player_id
 
     all_players = {}
