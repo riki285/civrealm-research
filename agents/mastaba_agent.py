@@ -21,6 +21,7 @@ from .baselang_agent import BaseLangAgent
 from .workers import MastabaWorker
 from agents.redundants.improvement_consts import UNIT_TYPES, IMPR_TYPES
 from config import INDIVIDUAL_PROMPT_DEFAULT, PROMPT_SOLUTIONS
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 
 class MastabaAgent(BaseLangAgent):
@@ -162,16 +163,21 @@ class MastabaAgent(BaseLangAgent):
                 self.dialogue_dir,
                 f"dialogue_T{self.info['turn'] + 1:03d}_advisor_at_{time.strftime('%Y.%m.%d_%H:%M:%S')}.txt"
             ))
+        # "suggestion" はランダムフォールバック時のコマンド名そのもの（parse失敗）
+        # 実際の suggestion テキストは必ず別の文字列になるので、これを除外する
+        if exec_action_name == "suggestion":
+            fc_logger.warning("Advisor returned bare 'suggestion' (parse failure fallback). Skipping.")
+            return ""
         return exec_action_name
 
     def make_decisions(self):
         if self.is_new_turn:
             self.general_advise = self.generate_general_advise()
 
-        threads = []
+        # 今ターンに決定を行うエンティティを事前に収集
+        active = []
         for ctrl_type in self.info['llm_info'].keys():
-            for actor_id, actor_dict in self.info['llm_info'][ctrl_type].items(
-            ):
+            for actor_id, actor_dict in self.info['llm_info'][ctrl_type].items():
                 if (self.last_taken_actions.get(
                     (ctrl_type, actor_id), ["", -2])[1] == self.turn
                         and ctrl_type != "unit"):
@@ -179,11 +185,22 @@ class MastabaAgent(BaseLangAgent):
                         f"{ctrl_type} {actor_id} tries a second move but rejected."
                     )
                     continue
-                thread = threading.Thread(target=self.make_single_decision,
-                                          args=(ctrl_type, actor_id,
-                                                actor_dict))
-                threads.append(thread)
-                thread.start()
+                active.append((ctrl_type, actor_id, actor_dict))
+
+        # タイムアウト = 1ユニットあたり120秒 × 同時実行数
+        per_unit_timeout = 120
+        num_workers = max(1, len(active))
+        for ctrl_type, actor_id, _ in active:
+            worker = self.workers.get((ctrl_type, actor_id))
+            if worker is not None and hasattr(worker, 'query_timeout'):
+                worker.query_timeout = per_unit_timeout * num_workers
+
+        threads = []
+        for ctrl_type, actor_id, actor_dict in active:
+            thread = threading.Thread(target=self.make_single_decision,
+                                      args=(ctrl_type, actor_id, actor_dict))
+            threads.append(thread)
+            thread.start()
 
         for thread in threads:
             thread.join()

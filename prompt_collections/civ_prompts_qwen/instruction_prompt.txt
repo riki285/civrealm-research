@@ -11,6 +11,7 @@ You must respond ONLY in the following JSON format:
 }
 
 Rules:
+- CRITICAL: You MUST select the action ONLY from the available actions list provided each turn. NEVER output an action that is not explicitly listed. Choosing an action outside this list is ALWAYS wrong and will cause an error.
+- The available actions list changes every turn. An action that existed in a previous turn may be GONE in the current turn. Never assume an action is valid unless it appears in the CURRENT list.
 - Each thought field must be ONE sentence only (under 20 words).
-- The action must be exactly one of the available actions provided each turn.
 - Output JSON only. Do not add any text outside the JSON.

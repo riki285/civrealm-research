@@ -5,6 +5,7 @@ from civrealm.agents.base_agent import BaseAgent
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.configs import fc_args
 from agents.workers.qwen_worker import QwenWorker
+from agents.utils import format_minimap_grid, format_upper_map_grid, filter_blacklisted_actions
 
 
 MAX_RETRIES = 2  # やり直し回数の上限
@@ -30,6 +31,7 @@ class BaselineLanguageAgent(BaseAgent):
         # やり直し回数別カウント: {0: 1回目成功, 1: 1回やり直し後成功, 2: 2回やり直し後成功, 'random': 上限超えランダム}
         self.retry_stats = {i: 0 for i in range(MAX_RETRIES + 1)}
         self.retry_stats['random'] = 0
+        self.last_unit_action = {}  # actor_id -> 前ターンの行動
 
     def interact_with_llm(self, input_prompt, avail_action_list):
         exec_action_name = None
@@ -71,8 +73,13 @@ class BaselineLanguageAgent(BaseAgent):
                     continue
 
                 actor_obs  = info['llm_info'][ctrl_type][valid_actor_id]['observations']
-                zoom_in_obs  = actor_obs['minimap']
-                zoom_out_obs = actor_obs['upper_map']
+                zoom_in_obs  = format_minimap_grid(actor_obs['minimap'])
+                zoom_out_obs = format_upper_map_grid(actor_obs['upper_map'])
+                #zoom_in_obs  = actor_obs['minimap']
+                #zoom_out_obs = actor_obs['upper_map']
+
+                prev = self.last_unit_action.get(valid_actor_id)
+                prev_note = f'Your previous action was: {prev}. ' if prev else ''
 
                 obs_input_prompt = self.qwen_worker.prompt_handler.unit_obs_action(
                     ctrl_type=ctrl_type,
@@ -80,7 +87,7 @@ class BaselineLanguageAgent(BaseAgent):
                     zoom_out_obs=zoom_out_obs,
                     zoom_in_obs=zoom_in_obs,
                     available_actions=valid_action_list,
-                    general_advise=''
+                    general_advise=prev_note
                 )
 
                 print('current unit:', valid_actor_name, '; unit id:', valid_actor_id)
@@ -90,6 +97,7 @@ class BaselineLanguageAgent(BaseAgent):
                 )
 
                 if exec_action_name:
+                    self.last_unit_action[valid_actor_id] = exec_action_name
                     return (ctrl_type, valid_actor_id, exec_action_name)
 
             elif ctrl_type == 'city':
@@ -101,9 +109,14 @@ class BaselineLanguageAgent(BaseAgent):
                     continue
 
                 actor_obs    = info['llm_info'][ctrl_type][valid_actor_id]['observations']
-                zoom_in_obs  = actor_obs['minimap']
-                zoom_out_obs = actor_obs['upper_map']
+                #zoom_in_obs  = actor_obs['minimap']
+                #zoom_out_obs = actor_obs['upper_map']
+                zoom_in_obs  = format_minimap_grid(actor_obs['minimap'])
+                zoom_out_obs = format_upper_map_grid(actor_obs['upper_map'])
                 producing    = actor_obs.get('producing', 'NOTHING')
+
+                prev = self.last_unit_action.get(valid_actor_id)
+                prev_note = f'Your previous action was: {prev}. ' if prev else ''
 
                 obs_input_prompt = self.qwen_worker.prompt_handler.city_obs_action(
                     ctrl_type=ctrl_type,
@@ -112,7 +125,7 @@ class BaselineLanguageAgent(BaseAgent):
                     zoom_in_obs=zoom_in_obs,
                     producing=producing,
                     available_actions=valid_action_list,
-                    general_advise=''
+                    general_advise=prev_note
                 )
 
                 print('current city:', valid_actor_name, '; city id:', valid_actor_id)
@@ -122,6 +135,7 @@ class BaselineLanguageAgent(BaseAgent):
                 )
 
                 if exec_action_name:
+                    self.last_unit_action[valid_actor_id] = exec_action_name
                     return (ctrl_type, valid_actor_id, exec_action_name)
 
         local_time = time.localtime()
@@ -137,12 +151,15 @@ class BaselineLanguageAgent(BaseAgent):
         if info['turn'] != self.turn:
             self.planned_actor_ids = []
             self.turn = info['turn']
+            # available_actions にないユニットは死亡とみなし削除
+            alive_ids = {aid for ct, actors in info.get('available_actions', {}).items() for aid in actors}
+            self.last_unit_action = {k: v for k, v in self.last_unit_action.items() if k in alive_ids}
 
         for actor_id, actor_info in actor_dict.items():
             if actor_id in self.planned_actor_ids:
                 continue
             actor_name   = actor_info['name']
-            avail_actions = actor_info['available_actions']
+            avail_actions = filter_blacklisted_actions(actor_info['available_actions'])
             self.planned_actor_ids.append(actor_id)
             return actor_id, actor_name, avail_actions
         return None, None, None

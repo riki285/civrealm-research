@@ -1,0 +1,7 @@
+You are controlling <% ctrl_type %>: <% actor_name %>.
+The zoomed-out observation is <% zoom_out_obs %>.
+The zoomed-in observation is <% zoom_in_obs %>.
+<% cities_summary %>
+The available actions are <% available_actions %>.
+IMPORTANT: You MUST choose ONLY from the actions listed above. Do NOT select any action that does not appear in this list. The list changes every turn — an action from a previous turn may no longer be valid.
+Message from advisor: <% general_advise %>

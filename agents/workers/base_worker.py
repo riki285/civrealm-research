@@ -32,6 +32,7 @@ class BaseWorker(ABC):
         self.dialogue = []
         self.taken_actions_list = []
         self.message = ''
+        self.last_retry_count = 0  # 直前の choose_action() でのリトライ回数（0=初回成功, 'random'=タイムアウト）
 
         self.chain: BaseCombineDocumentsChain = None
         self.memory: ConversationSummaryBufferMemory = None
@@ -113,39 +114,35 @@ class BaseWorker(ABC):
     def choose_action(self,
                       input_prompt,
                       avail_action_list,
-                      interact_timeout=60):
+                      max_retries=2):
         exec_action_name = None
         prompt_addition = ''
-        start_time = time.time()
-        while exec_action_name is None:
-            if time.time() - start_time < interact_timeout:
-                try:
-                    #print("before generate_command")
-                    response = self.generate_command(input_prompt +
-                                                     prompt_addition)
-                    #print("after generate_command")
-                    if response is None:
-                        raise Exception("LLM response is None")
+        for attempt in range(max_retries + 1):
+            try:
+                response = self.generate_command(input_prompt + prompt_addition)
+                if response is None:
+                    raise Exception("LLM response is None")
 
-                    exec_action_name, prompt_addition = self.process_command(
-                        response, input_prompt, avail_action_list)
-                    #print("after process_command")
-                    self.dialogue += [response['choices'][0]['message']]
+                exec_action_name, prompt_addition = self.process_command(
+                    response, input_prompt, avail_action_list)
+                self.dialogue += [response['choices'][0]['message']]
 
-                except Exception as e:
-                    #Sprint("EXCEPTION:", e)
-                    import traceback
-                    traceback.print_exc()
-                    fc_logger.error(f'Error when choosing action: {str(e)}')
-                    fc_logger.error(f'input_prompt: {input_prompt}')
-                    fc_logger.error(f'dialogue: {str(self.dialogue)}')
-                    fc_logger.error('Retying...')
-                    continue
-            else:
-                exec_action_name = random.choice(avail_action_list)
-                fc_logger.debug('Timeout, randomly choose:', exec_action_name)
-                print('Timeout, randomly choose:', exec_action_name)
-                break
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                fc_logger.error(f'Error when choosing action: {str(e)}')
+                fc_logger.error(f'input_prompt: {input_prompt}')
+                fc_logger.error(f'dialogue: {str(self.dialogue)}')
+                fc_logger.error('Retrying...')
+
+            if exec_action_name is not None:
+                self.last_retry_count = attempt
+                return exec_action_name
+
+        exec_action_name = random.choice(avail_action_list)
+        self.last_retry_count = 'random'
+        fc_logger.debug(f'Retry limit ({max_retries}) exceeded, randomly choose: {exec_action_name}')
+        print(f'Retry limit ({max_retries}) exceeded, randomly choose: {exec_action_name}')
         return exec_action_name
 
     # ==============================================================
@@ -199,11 +196,6 @@ class BaseWorker(ABC):
             self.dialogue.pop(-1)
 
     def restrict_dialogue(self):
-        # Qwenの場合，先頭2件（instruction/task prompt）を保持しつつ最新4件だけ残す
-        if "Qwen" in self.model:
-            if len(self.dialogue) > 3:
-                self.dialogue = self.dialogue[:2] + self.dialogue[-1:]
-            return
         limit = TOKEN_LIMIT_TABLE[self.model]
         """
         The limit on token length for gpt-3.5-turbo-0301 is 4096.

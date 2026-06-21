@@ -17,6 +17,7 @@ import pickle
 import warnings
 import gymnasium
 import civrealm
+from datetime import datetime
 from agents import BaselineLanguageAgent, AutoGPTAgent, BaseLangAgent, MastabaAgent, QwenMastabaAgent
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.configs import fc_args
@@ -31,6 +32,12 @@ warnings.filterwarnings('ignore',
 
 MAX_TURNS = None  # ターン数の上限。None にすると無制限。
 
+SEED = 1  # 初期状況固定用シード
+fc_args['debug.randomly_generate_seeds'] = False
+fc_args['debug.mapseed'] = SEED
+fc_args['debug.gameseed'] = SEED
+fc_args['debug.agentseed'] = SEED
+
 
 def main():
     """
@@ -39,11 +46,14 @@ def main():
     Main entry of the program.
     Starts a single-player Freeciv game against rule-based AI.
     """
+    run_id = datetime.now().strftime('%Y%m%d_%H%M%S')
+    start_time = datetime.now()
+
     env = gymnasium.make('civrealm/FreecivLLM-v0') #CivRealmのGymnasium環境を作成
     #agent = MastabaAgent(max_deconflict_depth=3)
     #agent = BaseLangAgent()
     #agent = BaselineLanguageAgent()
-    agent = QwenMastabaAgent()
+    agent = QwenMastabaAgent(run_id=run_id)
 
     observations, info = env.reset()
 
@@ -81,11 +91,20 @@ def main():
     if model_name:
         print(f'  model: {model_name}')
 
+    elapsed = datetime.now() - start_time
+    elapsed_sec = int(elapsed.total_seconds())
+
     save_experiment_results(
         env,
         agent_name=type(agent).__name__,
-        extra={'model': model_name, 'retry_stats': retry_stats},
+        extra={
+            'model': model_name,
+            'retry_stats': retry_stats,
+            'elapsed_seconds': elapsed_sec,
+            'elapsed_human': f'{elapsed_sec // 3600}h {(elapsed_sec % 3600) // 60}m {elapsed_sec % 60}s',
+        },
         eval_data=eval_data,
+        run_id=run_id,
     )
     env.close()
 
