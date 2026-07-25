@@ -1,3 +1,4 @@
+import re
 import random
 
 
@@ -16,11 +17,11 @@ class RuleBasedWorker:
             "build city",
         ],
         "Workers": [
-            "irrigation", "build irrigation",
+            "irrigation",
             "build road",
-            "mine", "build mine",
-            "transform terrain",
-            "build fortress",
+            "mine",
+            "cultivate",
+            "plant",
         ],
         "Warriors": ["fortify", "move North", "move South", "move East", "move West",
                      "move NorthEast", "move NorthWest", "move SouthEast", "move SouthWest"],
@@ -42,6 +43,9 @@ class RuleBasedWorker:
         self.actor_id = actor_id
         self.last_retry_count = 0  # BaseLangAgent の retry_stats 集計に必要
 
+    def save_dialogue_to_file(self, save_path: str) -> None:
+        pass  # 対話ログなし（LLM未使用）
+
     def choose_action(self, input_prompt: str, avail_action_list: list) -> str:
         unit_type = self._parse_unit_type(input_prompt)
         action = self._select_by_priority(unit_type, avail_action_list)
@@ -50,15 +54,10 @@ class RuleBasedWorker:
         return action
 
     def _parse_unit_type(self, input_prompt: str) -> str:
-        """input_prompt の "You are controlling unit: <Type> <id>." から種別を抽出する。"""
-        import re
-        m = re.search(r'controlling unit:\s+(\w+)', input_prompt)
-        if m:
-            return m.group(1)
-        # 都市の場合
-        if "controlling city" in input_prompt or self.ctrl_type == "city":
+        if self.ctrl_type == "city":
             return "city"
-        return "unknown"
+        m = re.search(r'controlling \w+:\s+(\w+)', input_prompt)
+        return m.group(1) if m else "unknown"
 
     def _select_by_priority(self, unit_type: str, avail: list):
         """優先リストの順にavail_action_listを検索し、最初に見つかったものを返す。"""
