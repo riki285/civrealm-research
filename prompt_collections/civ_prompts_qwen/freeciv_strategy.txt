@@ -1,0 +1,153 @@
+# Freeciv Tutorial Strategy Summary 
+---
+Use the following strategic knowledge to guide all unit controllers each turn. Prioritize the most urgent goals based on current game state.
+
+## 1. Very Early Game (Escaping Despotism)
+
+**Production goals at this stage**: Settlers, city-defending units, ships
+**Research goals at this stage**: Aim for Monarchy or Republic after acquiring Warrior Code. Map Making and Writing are also useful.
+
+### 1-1. City Site Selection Criteria
+- Aim for a location where the city radius (the city center tile plus one surrounding tile at founding) yields "Food +4, Shields +2, Trade +1" or better.
+- Terrain that excels in all three of food, production, and trade almost never exists, so choose combinations that compensate for each other's weaknesses (e.g., a high-food tile paired with a high-production tile).
+- Avoid pairing tiles that both produce zero trade (e.g., high-production coal + pheasant), since zero trade means zero research.
+- When multiple candidate sites exist, concentrate special resources on the capital and prioritize it in the early game.
+- As a rule of thumb, aim to have your second city founded within roughly 3 turns of game start.
+
+### 1-2. Managing City Information
+- Judge food, production, and trade by their effective values (after penalties are applied). Food +3 is a good site, +2 is standard, +1 needs tile improvement.
+- Zero gold or luxury is fine, but **avoid zero science points — always maintain at least 1**.
+- When the granary fills up, population increases and city size grows by 1. If the population growth/decline outlook is negative (shown in red), you must reassign citizens to increase food output, or famine will occur.
+
+### 1-3. Early Production Choices
+- If enemy borders are already visible, prioritize a Warrior for defense; otherwise, prioritize Settlers to increase your city count — you can't fight a war with only 2 cities.
+- Early on you can typically only produce Barracks, Coinage, Settlers, and Warriors (since research hasn't progressed far enough for more).
+
+### 1-4. Tile Improvement Priorities and Pitfalls
+- **Roads**: Speed up unit movement, and add +1 trade to plains, grassland, and desert tiles. Directly affects how fast you can expand.
+- **Irrigation**: Adds +1 food to plains and grassland tiles. Requires adjacency to a water source (ocean, sea, lake, river, or an already-irrigated tile).
+- **Pitfall #1 (most important)**: Under Despotism, any tile producing 3 or more of a resource gets a -1 penalty, so irrigating grassland often doesn't actually increase net output beyond +2. **While under Despotism, limit irrigation to plains and oases only.**
+- **Pitfall #2**: Irrigating the city center tile does not increase its food output.
+- **Mining**: Increases production on desert, hill, and mountain tiles. However, mining a hill to get +1 production (taking 10 turns) is often less efficient than building a road + irrigating a plains tile (effectively 2+5 = 7 turns). Also note that mining a hill reduces its food output by 1 (the city center tile is an exception — production increases there without sacrificing food).
+- What matters for tile improvements is whether a citizen is actually working that tile. Improving many surrounding tiles while the city is still small means they can't all be utilized yet.
+
+### 1-5. City Expansion and Spacing
+- Settlers can only be produced once a city reaches size 2 or larger.
+- While a city is producing a Settler, it continuously spends food to maintain that unit, slowing its growth. Once complete, move it promptly to found a new city.
+- **A good rule of thumb for city spacing is around 3 tiles apart** (leaving 2 empty tiles in between). Cities placed too close together hinder each other's population growth, while cities placed too far apart become harder to defend and suffer more corruption.
+- Consider each city's visibility (line of sight) and avoid placement that creates blind spots; along coastlines, position cities to see as much of the sea as possible.
+
+### 1-6. Capital and National Defense
+- The Palace provides "a 75% production bonus under Despotism." Since building settlers in the capital reduces its city size (and thus this bonus's value) each time, **limit capital-produced settlers to 1–2 units, then switch to military units and growing population/production instead**.
+- Units have four veterancy levels: Green, Veteran, Hardened, and Elite. **Green units are very weak — build a Barracks and produce Veteran units instead.**
+- Archers are the standard early-game city garrison unit; produce Veteran Archers in the capital and deploy them to each city.
+- **Upkeep mechanics**: Most units consume 1 shield of upkeep per turn from their home city. Under Despotism, the first 3 units per city are free, but the 4th onward costs upkeep. Spread units across cities as much as possible to stay within the free allotment.
+
+### 1-7. Research Management Tips
+- Among the first tier of technologies, "Ceremonial Burial" is the least immediately useful (required for Monarchy, but not a high priority otherwise).
+- Switching production between categories (e.g., unit → building) discards half of the accumulated shields. Switching within the same category (Settler → Diplomat, Courthouse → Library, etc.) loses nothing. You can exploit this by starting production of a same-category item before a needed tech finishes researching, then switching to your target item once it's available, to avoid waste.
+
+### 1-8. Transitioning to Monarchy
+- Once research completes, you must actually trigger a "Revolution" to change government (this applies to any government change, not just Monarchy) — forgetting to do so is a common mistake.
+- After a revolution, you enter Anarchy for a random 1–5 turns, during which you're especially vulnerable to enemy attack.
+- Monarchy is close to a strict upgrade over Despotism — its biggest advantage is that the tile-output penalty is removed (e.g., irrigated grassland properly yields +1 food). Corruption also decreases, trade increases, and the maximum share of trade you can allocate to research rises from 60% under Despotism to 70%.
+- On the exact turn the revolution completes, you can freely change government again, so you can toggle between Despotism and Monarchy to directly feel the difference in research speed.
+
+### 1-9. Monarchy vs. Republic
+| Aspect | Monarchy | Republic |
+|---|---|---|
+| Capital production bonus | Yes (75%) | None |
+| 3 free units per city | Yes | No (production suffers significantly) |
+| Trade bonus | None | Yes (faster research, higher tax revenue) |
+| Celebration boost | Not available | Available |
+| Suitability for war | Good for aggressive warfare | Poor (unsuited to active warfare) |
+| Difficulty | Beginner-friendly | Somewhat harder (requires careful worker placement and defending cities with fewer units) |
+
+Monarchy gets off to a fast start, while Republic comes into its own once the economic foundation is established. Neither is unconditionally stronger — try different research paths to find the playstyle that suits you.
+
+---
+
+## 2. Early Game (Acquiring Gunpowder)
+
+**Production goals at this stage**: City buildings, Wonders, Caravans, and (if going to war) ships or attack units
+**Research goals at this stage**: Acquire Trade and Seafaring, then aim for Gunpowder or Magnetism
+
+Once the first goal (escaping Despotism) is achieved, the second goal is generally to build up your internal economy ("Naikou"/domestic development). This consists of four elements:
+
+### 2-1. Land Development
+- By the time you transition to Monarchy or Republic, you should ideally have finished founding your cities.
+- More cities mean a larger national population, but also more management overhead — as a rule of thumb, cap yourself at around **15 cities at most**, depending on map size.
+- If you have 10 or more cities, defend your capital especially heavily — if it falls, civil war can break out.
+
+### 2-2. City Building Maintenance
+City buildings vary widely in function, construction cost, and upkeep, so carefully consider what you actually need before researching and building them.
+
+### 2-3. Establishing Trade Routes
+- Trade points are the source of both research speed and tax revenue — the more you have, the better off you are.
+- Producing a "Caravan" unit and sending it to another city establishes a trade route.
+
+### 2-4. Building Wonders
+- Wonders are special buildings with powerful effects; only one player can build any given Wonder, so it's a race to complete it first.
+- Sending a Caravan into a city that's building a Wonder converts the Caravan's cost directly into accumulated production (shields).
+- Examples of particularly strong, easy-to-understand Wonders: The Great Library, Marco Polo's Embassy, and Magellan's Expedition.
+
+---
+
+## 3. Attacking Enemies and Being Attacked
+
+### 3-1. Fundamentals of War
+- Moving a unit onto a tile occupied by an enemy unit automatically triggers combat, and only the winning side survives.
+- Freeciv is fundamentally balanced so that **the defender has the advantage**.
+- **Open-field combat (outside cities)**: Relatively easy to win as long as your attack strength exceeds the enemy's defense strength. A successful kill wipes out every enemy unit stacked on that tile (a "kill stack").
+- **Siege warfare (attacking cities)**: Cities themselves greatly boost the defense of units inside them, giving the defender an overwhelming advantage. Attackers need to mass large numbers of units for a concentrated assault — but that same concentration creates the risk of the attacker's own stack being wiped out in a single counter-kill.
+
+### 3-2. Balancing Expansion and Defense
+- Unless the enemy is nearby or food production is poor, prioritize producing Settlers to keep expanding (requires city size 2+).
+- Each Settler produced reduces city population and a worked tile by 1, but founding a new city adds 2 tiles plus a new production queue (plus gold and research if it has trade income), so it's still worth prioritizing. Move the Settler immediately after completion to found the new city.
+- City spacing that's too tight hampers mutual growth; spacing that's too wide makes defense harder and increases corruption. Also watch for blind spots in visibility.
+- Granaries and the Pyramids are useful, but come with caveats (an Aqueduct is needed to grow past size 8; under Republic/Democracy, celebration bonuses require size 3+), so prioritize them for cities with limited nearby food tiles or those dedicated to producing Settlers.
+- **City specialization**: High-production cities (coal, oil, etc.) are well-suited to building Wonders, supporting other cities (e.g., disbanding units for shields), and mass-producing attack units for defense. High-trade cities (gold, gems, etc.) are well-suited to research contribution and gold income.
+- Build up defense in parallel: build a Barracks in a high-production city (usually the capital) and deploy Veteran Archers or Phalanxes to each city. Archers, with their balanced offense and defense, are a common mainstream choice.
+  - Producing Green units without building a Barracks first is a common beginner mistake (Veterans are 1.5x as strong as Green units).
+  - There may be situations where you can't afford a Barracks, but you should anticipate and avoid this in advance. Note that Barracks cost 1 gold/turn in upkeep, so building too many strains your treasury.
+- Keep advancing research in parallel: without research progress you can't escape Despotism, and you can't build Wonders or strong units. Building a Library in a city whose research output is being eaten by corruption is wasted effort, so check each city's research output before deciding whether to build one.
+- Depending on how exploration is going, it can also be worthwhile to rush Map Making early and build a Trireme, load it with Settlers and combat units, and set sail. You can also ferry just Warriors first to claim territory. Plan efficiently around the Trireme's speed and the timing of Settler completion.
+
+---
+
+## 4. Mid Game (Up Through the Discovery of Railroad)
+
+- Once you trigger a revolution and change government, you'll notice differences in research speed, food production, the Palace's production bonus, Settler upkeep food cost, and other details.
+- There's no single fixed second goal after achieving the first goal (escaping Despotism). You might go on the offensive, push further scientific development, or you might already be under attack and facing a crisis.
+- **If you're unsure, setting "Gunpowder" as your research goal is the standard choice.** Musketeers, unlocked by Gunpowder, have dramatically higher defense, making city defense much easier.
+- If an opposing civilization's score is clearly much lower than yours, you might instead aim for "Magnetism" first. Frigates are highly effective against any pre-Gunpowder unit and can sweep them away one after another.
+
+### 4-1. Continued Development
+- Under Despotism, irrigating grassland doesn't actually increase net food (the gain is effectively canceled out by the corruption-equivalent penalty), but under Monarchy or Republic it properly does — so irrigate any untouched grassland aggressively once you're past Despotism.
+- Irrigating plains/grassland, converting jungle/swamp to grassland (or forest first, then plains), and mining mountains/hills (especially remembering to mine the city center tile, which is often forgotten) are ongoing tasks that should be prioritized consistently from the very start of the game.
+- Continue building city buildings regardless of your government type.
+- As population grows, unhappy citizens appear, so managing unhappiness becomes important (cities with too many unhappy citizens stop growing and become vulnerable to civil disorder / revolt).
+  - **Monarchy**: Simply stationing military units in a city suppresses unhappiness, and the first 3 units are upkeep-free.
+  - **Republic**: Military units can't be used to suppress unhappiness, so you need to invest effort elsewhere — building Temples or Colosseums, allocating tax rate toward luxury, or boosting the budget via markets.
+
+### 4-2. When Attacked by Another Civilization
+- AI opponents have full-map and full-city-interior visibility, and will reliably exploit your weak points. In other words, if the AI targets a city, that city necessarily has a real defensive gap.
+- Generally, stationing Veteran Musketeers (Riflemen) in a city and building City Walls and Coastal Defense is sufficient. Always keep some financial slack on hand for emergencies, so you can rush-buy buildings or units immediately when needed.
+- Another option is "active defense" — using artillery like Catapults or Cannons to intercept approaching enemy units before they reach you.
+- **Being attacked by Frigates, Ironclads, Musketeers, or Cannons while you still lack Gunpowder is a very dire situation.** In that case, one option is to abandon the front-line city while conducting a fighting retreat, using a Diplomat to steal technology from the city that was captured — though this is difficult to execute well without experience.
+
+### 4-3. When Attacking Another Civilization
+The source recommends understanding each unit's stats and applying tactical/combat knowledge to attack decisively (the original page deliberately leaves detailed tactics unexplained, to preserve the fun of discovering them yourself).
+
+---
+
+## Content Excluded From This Summary
+- UI explanations such as how to read the game screen, unit-selection clicks, and keyboard shortcut lists
+- Game-setup topics such as ruleset types, AI difficulty settings, and nation/civilization selection
+- Image/screenshot references (e.g., "Image 1," "Image 2")
+
+## Notes Toward CivRealm Agent Implementation
+This content seems to map onto agent layers roughly as follows:
+- **Sections 1 (Very Early Game) and 2 (Early Game)** → the long-term strategy layer of `advisor_worker.py` (government-transition decisions, prioritization within the domestic-development cycle)
+- **Section 3 (War) and the defense/attack judgment in Section 4 (Mid Game)** → directly relevant to a barbarian-response protocol. In particular, the points that "sieging a city favors the defender," "the AI exploits weaknesses," and "lacking Gunpowder against advanced attackers is dire" may relate directly to why prior work (Mastaba) lost to barbarians (i.e., a lack of military balance).
+- **Tile-improvement priorities and the numeric city-spacing guideline (~3 tiles)** → readily convertible into concrete, prompt-ready rules at the Worker level.

@@ -16,57 +16,7 @@ Sometimes you may receive **game instructions** at the beginning, follow it.
 }
 Your suggestion will be broadcast to all other agents.
 
-
-## Early Game Strategy (apply when you have fewer than 6 cities)
-
-### Priority 1: Expand — found as many cities as possible
-- More cities = faster research + more production. Expansion beats everything else early on.
-- Every city should produce Settlers until you have 6 cities.
-- Do NOT build Barracks, Temples, Wonders, or economic buildings before 6 cities.
-  Exception: build 1 Warrior per city only after enemy units are spotted nearby.
-
-### Priority 2: Settle immediately on good tiles — do not wander
-- **'build city' is the ONLY action that founds a new city.**
-  'plant' plants a forest/jungle on the tile and does NOT found a city — never tell Settlers to use 'plant'.
-- If a Settler has 'build city' available, instruct it to USE IT NOW,
-  provided the tile is acceptable (see location criteria below).
-- Do NOT tell Settlers to "explore first", "move to a better spot", or "find resources"
-  if they are already on Grassland or near food. Wandering wastes turns.
-
-### Priority 3: Settlement location criteria (in order of importance)
-1. Distance: ~4 tiles from the nearest existing city (city borders just touching, not overlapping).
-   Too close (< 3 tiles) = overlapping territory = wasted tiles.
-2. Food: aim for food surplus of at least +2/turn.
-   - Best tiles: Fish, Wheat, Buffalo, Whales, Pheasant (special food resources)
-   - Good tiles: Grassland (2 food), River Grassland (2 food + trade bonus)
-   - Acceptable: Plains (1 food) if no better option nearby
-   - Avoid as main tile: Desert, Tundra, Swamp, Mountain
-3. Bonus: River adjacency (+trade, +defense) or Coastal location
-4. Ignore in early game: Iron, Coal, Oil — these require technology to use.
-   Do NOT direct Settlers toward production resources when food tiles are available.
-
-### Settler instruction rules
-- Settler on Grassland/food tile AND ≥ 3 tiles from nearest city AND 'build city' is available → instruct: 'build city' immediately
-- Settler too close to existing city (< 3 tiles) OR 'build city' not available → instruct: move away until 'build city' appears, then use it
-- Settler on Desert/Mountain/Swamp → instruct: move to nearest Grassland, then use 'build city'
-
-### Military
-- Build zero military units until enemy units are visible.
-- Once enemies appear: switch one city to Warriors immediately.
-- Never let ALL cities switch to military — keep at least one city producing Settlers.
-
-
-## Worker Terrain Improvement Actions
-
-Workers can perform the following terrain improvement actions:
-
-- `irrigate`: Adds +1 food to a Grassland or Plains tile. Use this to increase food output near cities.
-- `mine`: Adds shields (production) to a Hills or Mountains tile. Use this to increase production output near cities.
-- `build road`: Adds a road to a tile, adding +1 trade and allowing units to move faster across the tile.
-- `cultivate`: Converts Forest into Plains. Forest yields food=1, shields=2. Plains yields food=1, shields=1. This reduces shields slightly but removes the forest.
-- `plant` on Grassland: Converts Grassland into Forest. Grassland yields food=2, shields=0. Forest yields food=1, shields=2. This trades food for shields.
-- `plant` on Forest: Converts Forest into Swamp. Forest yields food=1, shields=2. Swamp yields food=1, shields=0. This removes shields with no benefit.
-
+<$ freeciv_strategy() $>
 
 ## Examples
 

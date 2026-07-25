@@ -18,7 +18,7 @@ import warnings
 import gymnasium
 import civrealm
 from datetime import datetime
-from agents import BaselineLanguageAgent, AutoGPTAgent, BaseLangAgent, MastabaAgent, QwenMastabaAgent
+from agents import BaselineLanguageAgent, AutoGPTAgent, BaseLangAgent, MastabaAgent, QwenMastabaAgent, QwenMastabaRuleAgent
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.configs import fc_args
 from civrealm.envs.freeciv_wrapper.llm_wrapper import LLMWrapper
@@ -37,6 +37,7 @@ fc_args['debug.randomly_generate_seeds'] = False
 fc_args['debug.mapseed'] = SEED
 fc_args['debug.gameseed'] = SEED
 fc_args['debug.agentseed'] = SEED
+fc_args['ruleset'] = 'classic'
 
 
 def main():
@@ -53,7 +54,8 @@ def main():
     #agent = MastabaAgent(max_deconflict_depth=3)
     #agent = BaseLangAgent()
     #agent = BaselineLanguageAgent()
-    agent = QwenMastabaAgent(run_id=run_id)
+    #agent = QwenMastabaAgent(run_id=run_id, max_deconflict_depth=3)
+    agent = QwenMastabaRuleAgent(run_id=run_id, max_deconflict_depth=3)
 
     observations, info = env.reset()
 

@@ -32,14 +32,17 @@ class QwenMastabaAgent(MastabaAgent):
         self._city_producing_cache = {}  # {city_id: str} — 最後に確認した生産物名
         self._cities_summary_cache = (None, None)  # (turn, str) — ターン単位キャッシュ
 
-    def add_entity(self, entity_type, entity_id):
-        if (entity_type, entity_id) in self.workers:
-            return
-        self.workers[(entity_type, entity_id)] = QwenMastabaWorker(
+    def _create_controller_worker(self, entity_type, entity_id):
+        return QwenMastabaWorker(
             role="controller",
             ctrl_type=entity_type,
             actor_id=entity_id,
         )
+
+    def add_entity(self, entity_type, entity_id):
+        if (entity_type, entity_id) in self.workers:
+            return
+        self.workers[(entity_type, entity_id)] = self._create_controller_worker(entity_type, entity_id)
 
     def regenerate_conflict_actions(self, observations, info):
         """コンフリクトしたエンティティだけ再決定する。全エンティティの再実行を防ぐ。"""
