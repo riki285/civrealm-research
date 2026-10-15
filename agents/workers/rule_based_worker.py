@@ -171,6 +171,14 @@ DIR_VECTORS = {
 DIR_NAMES = ['north', 'south', 'east', 'west',
              'northeast', 'northwest', 'southeast', 'southwest']
 
+# Freecivの goto_N 形式（数字）→ 方向名マッピング
+# 配置: 0=NW, 1=N, 2=NE, 3=W, 4=E, 5=SW, 6=S, 7=SE
+GOTO_NUM_TO_DIR = {
+    '0': 'northwest', '1': 'north', '2': 'northeast',
+    '3': 'west',                    '4': 'east',
+    '5': 'southwest', '6': 'south', '7': 'southeast',
+}
+
 
 # ============================================================
 # 意図
@@ -225,8 +233,9 @@ _NON_ITEM_WORDS = frozenset({
 # 汎用ヘルパー
 # ============================================================
 def _norm(s):
-    """小文字化して空白を1つに潰す。行動名の表記ゆれ吸収用。"""
-    return re.sub(r'\s+', ' ', (s or '').strip().lower())
+    """小文字化・アンダースコアをスペースに統一・空白を1つに潰す。行動名の表記ゆれ吸収用。"""
+    s = re.sub(r'_', ' ', (s or '').strip().lower())
+    return re.sub(r'\s+', ' ', s)
 
 
 def win_chance(att_str, att_hp, att_fp, def_str, def_hp, def_fp):
@@ -989,15 +998,22 @@ class RuleBasedWorker:
     def _find_move(self, avail, direction):
         """
         方向名から移動アクションを探す。
-        'move north' / 'move North' / 'goto_N' などの表記ゆれを吸収する。
+        'move north' / 'move North' / 'goto_N' / 'goto_1'（数字）などの表記ゆれを吸収する。
         """
         d = _norm(direction)
         for a in avail:
             low = _norm(a)
+            # goto_数字 形式（例: goto_1 → 'goto 1'）への対応
+            m = re.match(r'^goto (\d)$', low)
+            if m:
+                dir_name = GOTO_NUM_TO_DIR.get(m.group(1), '')
+                if dir_name == d:
+                    return a
+                continue
             if not (low.startswith('move') or low.startswith('goto')):
                 continue
-            tail = re.sub(r'^(move|goto)[\s_]*', '', low)
-            if tail.replace(' ', '') == d.replace(' ', ''):
+            tail = re.sub(r'^(move|goto)\s*', '', low)
+            if tail == d:
                 return a
         return None
 
