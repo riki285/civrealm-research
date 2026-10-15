@@ -88,9 +88,6 @@ class BaseLangAgent(LanguageAgent):
         available_actions = actor_dict['available_actions']
         producing = actor_dict['observations'].get('producing', 'NOTHING')
 
-        if 'keep activity' in available_actions:
-            available_actions.remove("keep activity")
-
         if 'cancel order' in available_actions:
             available_actions.remove("cancel order")
 
@@ -112,6 +109,9 @@ class BaseLangAgent(LanguageAgent):
             produce_current = 'produce ' + producing
             if produce_current not in avail_for_worker:
                 avail_for_worker.append(produce_current)
+        if ctrl_type == "city":
+            print(f"===== AVAIL_FOR_WORKER (city {actor_id}, producing={producing}) =====")
+            print(avail_for_worker)
         exec_action_name = worker.choose_action(obs_input_prompt,
                                                 avail_for_worker)
         # retry_stats 集計（複数スレッドから呼ばれるためロック必須）

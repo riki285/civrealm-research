@@ -32,7 +32,7 @@ warnings.filterwarnings('ignore',
 
 MAX_TURNS = None  # ターン数の上限。None にすると無制限。
 
-SEED = 1  # 初期状況固定用シード
+SEED = 2  # 初期状況固定用シード
 fc_args['debug.randomly_generate_seeds'] = False
 fc_args['debug.mapseed'] = SEED
 fc_args['debug.gameseed'] = SEED

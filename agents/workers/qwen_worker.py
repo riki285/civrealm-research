@@ -159,6 +159,15 @@ class QwenWorker(BaseWorker):
             )
             if temp_message is not None:
                 self.dialogue.append(temp_message)
+            # 圧縮後もトークン数が変わらない場合（現ターン入力だけで上限超過）は
+            # これ以上削減できないのでループを抜ける
+            if num_tokens_from_messages(self.dialogue, self.model) >= limit:
+                fc_logger.warning(
+                    f"Token limit ({limit}) still exceeded after compression "
+                    f"({num_tokens_from_messages(self.dialogue, self.model)} tokens). "
+                    "Proceeding anyway."
+                )
+                break
 
     # ------------------------------------------------------------------
     # コマンド生成

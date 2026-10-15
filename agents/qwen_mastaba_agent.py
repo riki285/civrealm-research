@@ -272,7 +272,8 @@ class QwenMastabaAgent(MastabaAgent):
             return ""
 
     def get_advisor_input_prompt(self, obs, info):
-        """アドバイザー用プロンプト: 統計情報 + 全都市zoom-out + 都市詳細。"""
+        """アドバイザー用プロンプト: 統計情報 + 都市詳細サマリー。
+        ズームアウトマップは除外してトークン消費を抑制する。"""
         # --- 統計情報（基底クラスと同じロジック）---
         munit_num_self = wunit_num_self = unit_num_enemy = 0
         city_num_self = city_size_self = city_num_other = city_num_enemy = 0
@@ -336,70 +337,9 @@ class QwenMastabaAgent(MastabaAgent):
             war_state,
         ])
 
-        # --- 全自都市の zoom-out マップ ---
-        llm_cities = info.get('llm_info', {}).get('city', {})
-        own_cities = []
-        for city_id, raw in obs.get('city', {}).items():
-            if not self._is_own_city(raw, city_id):
-                continue
-            try:
-                cx = raw.get('x'); cy = raw.get('y')
-                cx = int(cx.flat[0]) if hasattr(cx, 'flat') else int(cx)
-                cy = int(cy.flat[0]) if hasattr(cy, 'flat') else int(cy)
-            except Exception:
-                continue
-            city_info = llm_cities.get(city_id, {})
-            name = city_info.get('name', f'city {city_id}')
-            upper_map = (city_info.get('observations', {}).get('upper_map') if city_info else None) \
-                or self._city_map_cache.get(city_id)
-            # キャピタル判定（Palace保有）
-            impr = raw.get('improvements')
-            is_capital = False
-            if impr is not None:
-                try:
-                    palace_idx = IMPR_TYPES.index('Palace')
-                    is_capital = bool(impr[palace_idx] == 1)
-                except (ValueError, IndexError):
-                    pass
-            own_cities.append({
-                'id': city_id, 'name': name, 'x': cx, 'y': cy,
-                'is_capital': is_capital, 'upper_map': upper_map,
-            })
-
-        # キャピタルを先頭に、残りはID順
-        own_cities.sort(key=lambda c: (not c['is_capital'], c['id']))
-        capital = own_cities[0] if own_cities else None
-
-        map_sections = []
-        for c in own_cities:
-            if c['upper_map'] is None:
-                continue
-            city_name_at = self._get_city_name_at(c['x'], c['y'])
-            zoom_out = format_upper_map_grid(c['upper_map'], city_name_at)
-
-            label_parts = [c['name']]
-            if c['is_capital']:
-                label_parts.append('capital')
-                label_parts.append('at (0, 0)')
-            elif capital:
-                dx = c['x'] - capital['x']
-                dy = c['y'] - capital['y']
-                map_status = obs.get('map', {}).get('status')
-                if map_status is not None:
-                    map_w, map_h = map_status.shape[0], map_status.shape[1]
-                    if abs(dx) > map_w / 2:
-                        dx = dx - map_w if dx > 0 else dx + map_w
-                    if abs(dy) > map_h / 2:
-                        dy = dy - map_h if dy > 0 else dy + map_h
-                label_parts.append(f'at ({dx:+d}, {dy:+d})')
-            label = ', '.join(label_parts)
-            map_sections.append(f"--- {label} ---\n{zoom_out}")
-
         cities_summary = self._get_all_cities_summary()
 
         parts = [stats_text]
-        if map_sections:
-            parts.append('\n'.join(map_sections))
         if cities_summary:
             parts.append(cities_summary)
         return '\n'.join(parts)
