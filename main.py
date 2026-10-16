@@ -30,6 +30,24 @@ warnings.filterwarnings('ignore',
                         message='.*The obs returned by the .* method.*')
 
 
+def wait_for_vllm(url="http://localhost:8001/v1/models", timeout=300):
+    """vLLMサーバーがモデルロード完了するまで待機する。"""
+    import requests, time
+    print("Waiting for vLLM server to be ready...", flush=True)
+    start = time.time()
+    while time.time() - start < timeout:
+        try:
+            r = requests.get(url, timeout=5)
+            if r.status_code == 200:
+                elapsed = int(time.time() - start)
+                print(f"vLLM ready (waited {elapsed}s).", flush=True)
+                return
+        except Exception:
+            pass
+        time.sleep(5)
+    raise TimeoutError(f"vLLM did not become ready within {timeout}s")
+
+
 MAX_TURNS = None  # ターン数の上限。None にすると無制限。
 
 SEED = 2  # 初期状況固定用シード
@@ -47,6 +65,7 @@ def main():
     Main entry of the program.
     Starts a single-player Freeciv game against rule-based AI.
     """
+    wait_for_vllm()
     run_id = datetime.now().strftime('%Y%m%d_%H%M%S')
     start_time = datetime.now()
 
